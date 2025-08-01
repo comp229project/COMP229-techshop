@@ -109,8 +109,7 @@ const ShippingScreen = () => {
 
         <Button
           type='submit'
-          className='my-2'
-          style={{ backgroundColor: '#D3592A', border: 'none' }}
+          className='my-2 btn-cyan'
         >
           Continue
         </Button>

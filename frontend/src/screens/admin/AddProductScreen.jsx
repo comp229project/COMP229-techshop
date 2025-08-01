@@ -138,7 +138,7 @@ const AddProductScreen = () => {
           />
         </Form.Group>
 
-        <Button type='submit' className='mt-3' variant='primary'>
+        <Button type='submit' className='mt-3 btn-cyan' variant='primary'>
           Create Product
         </Button>
       </Form>

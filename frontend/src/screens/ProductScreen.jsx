@@ -75,7 +75,7 @@ const { refetch: refetchCart } = useGetCartQuery(undefined, {
         className='btn my-3'
         to='/'
         style={{
-          backgroundColor: '#657A8C',
+          backgroundColor: '#0b97f6',
           color: '#fff',
         }}
       >
@@ -180,14 +180,10 @@ const { refetch: refetchCart } = useGetCartQuery(undefined, {
 
                   <ListGroup.Item>
                     <Button
-                      className='btn-block'
+                      className='btn-block btn-cyan'
                       type='button'
                       disabled={product.countInStock === 0}
                       onClick={addToCartHandler}
-                      style={{
-                        backgroundColor: '#D3592A',
-                        border: 'none',
-                      }}
                     >
                       Add To Cart
                     </Button>
@@ -196,22 +192,22 @@ const { refetch: refetchCart } = useGetCartQuery(undefined, {
               </Card>
             </Col>
           </Row>
-          <Row className='review'>
+          <Row className='review addVertPadding'>
             <Col md={6}>
-              <h2>Reviews</h2>
+              <h2 className='bg-primary rounded'>Reviews</h2>
               {product.reviews.length === 0 && (
                 <Message variant='info'>No Reviews</Message>
               )}
-              <ListGroup variant='flush'>
+              <ListGroup variant='flush' className='addVertPadding'>
                 {product.reviews.map((review) => (
-                  <ListGroup.Item key={review._id}>
+                  <ListGroup.Item key={review._id} className='rounded'>
                     <strong>{review.name}</strong>
                     <Rating value={review.rating} />
                     <p>{review.createdAt.substring(0, 10)}</p>
                     <p>{review.comment}</p>
                   </ListGroup.Item>
                 ))}
-                <ListGroup.Item>
+                <ListGroup.Item variant='flush' className='rounded'>
                   <h4>Write a Customer Review</h4>
                   {loadingProductReview && <Loader />}
 
@@ -243,11 +239,8 @@ const { refetch: refetchCart } = useGetCartQuery(undefined, {
                       </Form.Group>
                       <Button
                         type='submit'
+                        className='btn-cyan'
                         disabled={loadingProductReview}
-                        style={{
-                          backgroundColor: '#657A8C',
-                          border: 'none',
-                        }}
                       >
                         Submit
                       </Button>
