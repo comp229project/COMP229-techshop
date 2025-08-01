@@ -2,62 +2,56 @@ import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Button, Row, Col, ListGroup, Image, Card } from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
 import Message from '../components/Message';
 import CheckoutSteps from '../components/CheckoutSteps';
 import Loader from '../components/Loader';
-import { useCreateOrderMutation } from '../slices/ordersApiSlice';
-import { clearCartItems } from '../slices/cartSlice';
 import Meta from '../components/Meta';
+import { useAuth } from '../context/AuthContext';
+import { useGetCartQuery } from '../slices/cartApiSlice';
+import { useCreateOrderMutation } from '../slices/ordersApiSlice';
 
 const PlaceOrderScreen = () => {
   const navigate = useNavigate();
+  const { userInfo } = useAuth();
 
-  const cart = useSelector((state) => state.cart);
+  const { data: cart, isLoading: loadingCart, error: errorCart, refetch: refetchCart } = useGetCartQuery(undefined, {
+    skip: !userInfo,
+  });
 
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
 
+  // Calculate prices
+  const itemsPrice = cart?.cartItems?.reduce((acc, item) => acc + item.qty * item.price, 0) || 0;
+  const shippingPrice = itemsPrice > 500 ? 0 : 25;
+  const taxPrice = Number((0.15 * itemsPrice).toFixed(2));
+  const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
+
   useEffect(() => {
-    if (!cart.shippingAddress.address) {
+    if (!cart?.shippingAddress?.address) {
       navigate('/shipping');
-    } else if (!cart.paymentMethod) {
+    } else if (!cart?.paymentMethod) {
       navigate('/payment');
     }
-  }, [cart.paymentMethod, cart.shippingAddress.address, navigate]);
+  }, [cart, navigate]);
 
-  const dispatch = useDispatch();
   const placeOrderHandler = async () => {
-  try {
-    const res = await createOrder({
-      orderItems: cart.cartItems,
-      shippingAddress: cart.shippingAddress,
-      paymentMethod: cart.paymentMethod,
-      itemsPrice: cart.itemsPrice,
-      shippingPrice: cart.shippingPrice,
-      taxPrice: cart.taxPrice,
-      totalPrice: cart.totalPrice,
-    }).unwrap();
-
-    console.log('✅ Order Response:', res);
-    dispatch(clearCartItems());
-    navigate(`/order/${res._id}`);
-  } catch (err) {
-    console.error('❌ Order creation failed:', err);
-
-    // ✅ Add this for clarity:
-    if (err?.data?.message) {
-      console.error('🔍 Server Message:', err.data.message);
-    } else if (err?.message) {
-      console.error('🔍 Error Message:', err.message);
-    } else {
-      console.error('🔍 Full Error Object:', JSON.stringify(err, null, 2));
+    try {
+      const res = await createOrder({
+        orderItems: cart.cartItems,
+        shippingAddress: cart.shippingAddress,
+        paymentMethod: cart.paymentMethod,
+        itemsPrice: Number(itemsPrice.toFixed(2)),
+        shippingPrice,
+        taxPrice,
+        totalPrice: Number(totalPrice),
+      }).unwrap();
+      await refetchCart();
+      navigate(`/order/${res._id}`);
+      window.location.reload(); // refreshes entire app state (quick fix)
+    } catch (err) {
+      toast.error(err?.data?.message || err.message || 'Order failed');
     }
-
-    toast.error(err?.data?.message || err.message || 'Order failed');
-  }
-};
-
-
+  };
 
   return (
     <>
@@ -69,22 +63,22 @@ const PlaceOrderScreen = () => {
             <ListGroup.Item>
               <h2>Shipping</h2>
               <p>
-                <strong>Address:</strong>
-                {cart.shippingAddress.address}, {cart.shippingAddress.city}{' '}
-                {cart.shippingAddress.postalCode},{' '}
-                {cart.shippingAddress.country}
+                <strong>Address:</strong>{' '}
+                {cart?.shippingAddress?.address}, {cart?.shippingAddress?.city}{' '}
+                {cart?.shippingAddress?.postalCode},{' '}
+                {cart?.shippingAddress?.country}
               </p>
             </ListGroup.Item>
 
             <ListGroup.Item>
               <h2>Payment Method</h2>
               <strong>Method: </strong>
-              {cart.paymentMethod}
+              {cart?.paymentMethod}
             </ListGroup.Item>
 
             <ListGroup.Item>
               <h2>Order Items</h2>
-              {cart.cartItems.length === 0 ? (
+              {cart?.cartItems?.length === 0 ? (
                 <Message>Your cart is empty</Message>
               ) : (
                 <ListGroup variant='flush'>
@@ -92,26 +86,18 @@ const PlaceOrderScreen = () => {
                     <ListGroup.Item key={index}>
                       <Row>
                         <Col md={1}>
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            fluid
-                            rounded
-                          />
+                          <Image src={item.image} alt={item.name} fluid rounded />
                         </Col>
                         <Col>
                           <Link
                             to={`/product/${item.product}`}
-                            style={{
-                              textDecoration: 'none',
-                              color: '#000',
-                            }}
+                            style={{ textDecoration: 'none', color: '#000' }}
                           >
                             {item.name}
                           </Link>
                         </Col>
                         <Col md={4}>
-                          {item.qty} x ${item.price} = ${item.qty * item.price}
+                          {item.qty} x ${item.price} = ${(item.qty * item.price).toFixed(2)}
                         </Col>
                       </Row>
                     </ListGroup.Item>
@@ -121,66 +107,69 @@ const PlaceOrderScreen = () => {
             </ListGroup.Item>
           </ListGroup>
         </Col>
+
         <Col md={4}>
           <Card>
             <ListGroup variant='flush'>
               <ListGroup.Item>
                 <h2>Order Summary</h2>
               </ListGroup.Item>
+
               <ListGroup.Item>
                 <Row>
                   <Col>Items</Col>
-                  <Col>${cart.itemsPrice}</Col>
+                  <Col>${itemsPrice.toFixed(2)}</Col>
                 </Row>
               </ListGroup.Item>
+
               <ListGroup.Item>
                 <Row>
                   <Col>Shipping</Col>
                   <Col>
-                    ${cart.shippingPrice}
-                    {cart.itemsPrice < 500 ? (
-                      <small style={{ display: 'block', color: 'red' }}>
+                    ${shippingPrice.toFixed(2)}
+                    {itemsPrice < 500 && (
+                      <small style={{ display: 'block', color: /*red*/'blue' }}>
                         Get free shipping for orders over $500!
                       </small>
-                    ) : null}
+                    )}
                   </Col>
                 </Row>
               </ListGroup.Item>
+
               <ListGroup.Item>
                 <Row>
                   <Col>Tax (15%)</Col>
-                  <Col>${cart.taxPrice}</Col>
+                  <Col>${taxPrice.toFixed(2)}</Col>
                 </Row>
               </ListGroup.Item>
+
               <ListGroup.Item>
                 <Row>
                   <Col>Total</Col>
                   <Col>
-                    <strong>${cart.totalPrice}</strong>
+                    <strong>${totalPrice}</strong>
                   </Col>
                 </Row>
               </ListGroup.Item>
-              <ListGroup.Item>
-                {error ? (
+
+              {error && (
+                <ListGroup.Item>
                   <Message variant='danger'>
                     {error?.data?.message || error.error}
                   </Message>
-                ) : null}
-              </ListGroup.Item>
+                </ListGroup.Item>
+              )}
+
               <ListGroup.Item>
                 <Button
                   type='button'
-                  className='btn-block'
-                  disabled={cart.cartItems === 0}
+                  className='btn-block btn-cyan'
+                  disabled={cart?.cartItems?.length === 0}
                   onClick={placeOrderHandler}
-                  style={{
-                    backgroundColor: '#D3592A',
-                    border: 'none',
-                  }}
                 >
                   Place Order
                 </Button>
-                {isLoading && <Loader />}
+                {(isLoading || loadingCart) && <Loader />}
               </ListGroup.Item>
             </ListGroup>
           </Card>

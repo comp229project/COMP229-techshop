@@ -2,12 +2,17 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { BASE_URL } from '../constants';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: BASE_URL || '',  // Use '' if you're using a proxy
-  prepareHeaders: (headers, { getState }) => {
-    const token = getState().auth.userInfo?.token;
+  baseUrl: BASE_URL || '',
+  prepareHeaders: (headers) => {
+    try {
+      const raw = localStorage.getItem('userInfo');
+      const userInfo = raw ? JSON.parse(raw) : null;
 
-    if (token) {
-      headers.set('authorization', `Bearer ${token}`);
+      if (userInfo?.token) {
+        headers.set('Authorization', `Bearer ${userInfo.token}`);
+      }
+    } catch (error) {
+      console.warn('⚠️ Failed to parse userInfo from localStorage', error);
     }
 
     return headers;
@@ -16,6 +21,6 @@ const baseQuery = fetchBaseQuery({
 
 export const apiSlice = createApi({
   baseQuery,
-  tagTypes: ['Product', 'User', 'Order'],
+  tagTypes: ['Product', 'User', 'Order', 'Cart'],
   endpoints: (builder) => ({}),
 });

@@ -2,20 +2,21 @@ import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { useSelector } from 'react-redux';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
+import Meta from '../components/Meta';
 import {
   useGetOrderDetailsQuery,
   usePayOrderMutation,
   useGetPayPalClientIdQuery,
   useDeliverOrderMutation,
 } from '../slices/ordersApiSlice';
-import Meta from '../components/Meta';
+import { useAuth } from '../context/AuthContext'; // ✅ Replaces redux
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
+  const { userInfo } = useAuth(); // ✅ Use AuthContext
 
   const {
     data: order,
@@ -25,9 +26,7 @@ const OrderScreen = () => {
   } = useGetOrderDetailsQuery(orderId);
 
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
-
-  const [deliverOrder, { isLoading: loadingDeliver }] =
-    useDeliverOrderMutation();
+  const [deliverOrder, { isLoading: loadingDeliver }] = useDeliverOrderMutation();
 
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
 
@@ -37,10 +36,8 @@ const OrderScreen = () => {
     error: errorPayPal,
   } = useGetPayPalClientIdQuery();
 
-  const { userInfo } = useSelector((state) => state.auth);
-
   useEffect(() => {
-    if (!errorPayPal && !loadingPayPal && paypal.clientId) {
+    if (!errorPayPal && !loadingPayPal && paypal?.clientId) {
       const loadPayPalScript = async () => {
         paypalDispatch({
           type: 'resetOptions',
@@ -110,7 +107,7 @@ const OrderScreen = () => {
   return isLoading ? (
     <Loader />
   ) : error ? (
-    <Message variant='danger' />
+    <Message variant='danger'>{error?.data?.message || error.message}</Message>
   ) : (
     <>
       <Meta title={'Z.US'} />
@@ -131,8 +128,7 @@ const OrderScreen = () => {
               <p>
                 <strong>Address: </strong>
                 {order.shippingAddress.address}, {order.shippingAddress.city},{' '}
-                {order.shippingAddress.postalCode},{' '}
-                {order.shippingAddress.country}
+                {order.shippingAddress.postalCode}, {order.shippingAddress.country}
               </p>
               {order.isDelivered ? (
                 <Message variant='success'>
@@ -142,6 +138,7 @@ const OrderScreen = () => {
                 <Message variant='danger'>Not Delivered</Message>
               )}
             </ListGroup.Item>
+
             <ListGroup.Item>
               <h2>Payment Method</h2>
               <p>
@@ -154,6 +151,7 @@ const OrderScreen = () => {
                 <Message variant='danger'>Not Paid</Message>
               )}
             </ListGroup.Item>
+
             <ListGroup.Item>
               <h2>Order Items</h2>
               {order.orderItems.map((item, index) => (
@@ -171,7 +169,7 @@ const OrderScreen = () => {
                       <Link to={`/products/${item.product}`}>{item.name}</Link>
                     </Col>
                     <Col md={4}>
-                      {item.qty} x ${item.price} = $ {item.qty * item.price}
+                      {item.qty} x ${item.price} = ${item.qty * item.price}
                     </Col>
                   </Row>
                 </ListGroup.Item>
@@ -179,32 +177,31 @@ const OrderScreen = () => {
             </ListGroup.Item>
           </ListGroup>
         </Col>
+
         <Col md={4}>
           <Card>
             <ListGroup>
               <ListGroup.Item>
                 <h2>Order Summary</h2>
               </ListGroup.Item>
+
               <ListGroup.Item>
                 <Row>
                   <Col>Items:</Col>
-                  <Col>$ {order.itemsPrice}</Col>
+                  <Col>${order.itemsPrice}</Col>
                 </Row>
-
                 <Row>
                   <Col>Shipping:</Col>
-                  <Col>$ {order.shippingPrice}</Col>
+                  <Col>${order.shippingPrice}</Col>
                 </Row>
-
                 <Row>
                   <Col>Tax:</Col>
-                  <Col>$ {order.taxPrice}</Col>
+                  <Col>${order.taxPrice}</Col>
                 </Row>
-
                 <Row>
                   <Col>Total:</Col>
                   <Col>
-                    <strong>$ {order.totalPrice}</strong>
+                    <strong>${order.totalPrice}</strong>
                   </Col>
                 </Row>
               </ListGroup.Item>
@@ -225,17 +222,16 @@ const OrderScreen = () => {
                         Test Pay Order
                       </Button>
 
-                      <div>
-                        <PayPalButtons
-                          createOrder={createOrder}
-                          onApprove={onApprove}
-                          onError={onError}
-                        ></PayPalButtons>
-                      </div>
+                      <PayPalButtons
+                        createOrder={createOrder}
+                        onApprove={onApprove}
+                        onError={onError}
+                      />
                     </div>
                   )}
                 </ListGroup.Item>
               )}
+
               {loadingDeliver && <Loader />}
               {userInfo &&
                 userInfo.isAdmin &&

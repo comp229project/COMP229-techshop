@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.routes.js'
 import productRoutes from './routes/product.routes.js'
 import uploadRoutes from './routes/upload.routes.js';
 import orderRoutes from './routes/order.routes.js';
+import cartRoutes from './routes/cart.routes.js';
 
 process.removeAllListeners('warning'); // suppress all warnings (optional)
 // Suppress all DeprecationWarnings (optional)
@@ -34,7 +35,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/upload', uploadRoutes);
 app.use('/api/orders', orderRoutes);
-
+app.use('/api/cart', cartRoutes);
 const __dirname = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 

@@ -1,31 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button, Col } from 'react-bootstrap';
 import FormContainer from '../components/FormContainer';
 import CheckoutSteps from '../components/CheckoutSteps';
-import { savePaymentMethod } from '../slices/cartSlice';
 import Meta from '../components/Meta';
+import { useAuth } from '../context/AuthContext';
+import { useGetCartQuery, useAddToCartMutation } from '../slices/cartApiSlice';
 
 const PaymentScreen = () => {
+  const navigate = useNavigate();
+  const { userInfo } = useAuth();
+
+  const { data: cart } = useGetCartQuery(undefined, { skip: !userInfo });
+  const [addToCart] = useAddToCartMutation();
+
   const [paymentMethod, setPaymentMethod] = useState('PayPal');
 
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  const cart = useSelector((state) => state.cart);
-  const { shippingAddress } = cart;
-
   useEffect(() => {
-    if (!shippingAddress) {
+    if (!cart?.shippingAddress?.address) {
       navigate('/shipping');
     }
-  }, [shippingAddress, navigate]);
+  }, [cart, navigate]);
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
-    dispatch(savePaymentMethod(paymentMethod));
-    navigate('/placeorder');
+
+    try {
+      const firstItem = cart?.cartItems?.[0];
+      if (!firstItem) throw new Error('Cart is empty');
+
+      await addToCart({
+        productId: firstItem.product,
+        qty: firstItem.qty,
+        paymentMethod,
+      }).unwrap();
+
+      navigate('/placeorder');
+    } catch (err) {
+      console.error('❌ Failed to update payment method:', err);
+    }
   };
 
   return (
@@ -44,18 +57,14 @@ const PaymentScreen = () => {
               id='PayPal'
               name='paymentMethod'
               value='PayPal'
-              checked
+              checked={paymentMethod === 'PayPal'}
               onChange={(e) => setPaymentMethod(e.target.value)}
             ></Form.Check>
           </Col>
         </Form.Group>
         <Button
-          className='my-3'
+          className='my-3 btn-cyan'
           type='submit'
-          style={{
-            backgroundColor: '#D3592A',
-            border: 'none',
-          }}
         >
           Continue
         </Button>
