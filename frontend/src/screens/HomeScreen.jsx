@@ -16,7 +16,6 @@ const HomeScreen = () => {
     keyword,
     pageNumber,
   });
-
   return (
     <div>
       {!keyword ? (

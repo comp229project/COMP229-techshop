@@ -1,35 +1,65 @@
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import FormContainer from '../components/FormContainer';
-import { saveShippingAddress } from '../slices/cartSlice';
 import CheckoutSteps from '../components/CheckoutSteps';
 import Meta from '../components/Meta';
+import { useAuth } from '../context/AuthContext';
+import {
+  useGetCartQuery,
+  useAddToCartMutation,
+} from '../slices/cartApiSlice';
 
 const ShippingScreen = () => {
-  const cart = useSelector((state) => state.cart);
-  const { shippingAddress } = cart;
-
-  const [address, setAddress] = useState(shippingAddress?.address || '');
-  const [city, setCity] = useState(shippingAddress?.city || '');
-  const [postalCode, setPostalCode] = useState(
-    shippingAddress?.postalCode || '',
-  );
-  const [country, setCountry] = useState(shippingAddress?.country || '');
-
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { userInfo } = useAuth();
 
-  const submitHandler = (e) => {
+  const { data: cart, refetch } = useGetCartQuery(undefined, {
+    skip: !userInfo,
+  });
+
+  const [addToCart] = useAddToCartMutation();
+
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [country, setCountry] = useState('');
+
+  useEffect(() => {
+    if (cart?.shippingAddress) {
+      setAddress(cart.shippingAddress.address || '');
+      setCity(cart.shippingAddress.city || '');
+      setPostalCode(cart.shippingAddress.postalCode || '');
+      setCountry(cart.shippingAddress.country || '');
+    }
+  }, [cart]);
+
+  const submitHandler = async (e) => {
     e.preventDefault();
-    dispatch(saveShippingAddress({ address, city, postalCode, country }));
-    navigate('/payment');
+
+    try {
+      if (!cart?.cartItems?.length) {
+        throw new Error('Cart is empty');
+      }
+
+      const firstItem = cart.cartItems[0];
+
+      await addToCart({
+        productId: firstItem.product,
+        qty: firstItem.qty,
+        shippingAddress: { address, city, postalCode, country },
+      }).unwrap();
+
+      console.log('✅ Shipping saved. Navigating to payment...');
+      navigate('/payment');
+    } catch (err) {
+      console.error('❌ Failed to save shipping address:', err);
+    }
   };
 
   return (
     <FormContainer>
-      <Meta title={'TechShop'} />
+      <Meta title='TechShop' />
       <CheckoutSteps step1 step2 />
       <h1>Shipping</h1>
       <Form onSubmit={submitHandler}>
@@ -39,8 +69,9 @@ const ShippingScreen = () => {
             type='text'
             placeholder='Enter address'
             value={address}
+            required
             onChange={(e) => setAddress(e.target.value)}
-          ></Form.Control>
+          />
         </Form.Group>
 
         <Form.Group controlId='city' className='my-2'>
@@ -49,8 +80,9 @@ const ShippingScreen = () => {
             type='text'
             placeholder='Enter city'
             value={city}
+            required
             onChange={(e) => setCity(e.target.value)}
-          ></Form.Control>
+          />
         </Form.Group>
 
         <Form.Group controlId='postalCode' className='my-2'>
@@ -59,8 +91,9 @@ const ShippingScreen = () => {
             type='text'
             placeholder='Enter postal code'
             value={postalCode}
+            required
             onChange={(e) => setPostalCode(e.target.value)}
-          ></Form.Control>
+          />
         </Form.Group>
 
         <Form.Group controlId='country' className='my-2'>
@@ -69,17 +102,15 @@ const ShippingScreen = () => {
             type='text'
             placeholder='Enter country'
             value={country}
+            required
             onChange={(e) => setCountry(e.target.value)}
-          ></Form.Control>
+          />
         </Form.Group>
 
         <Button
           type='submit'
-          style={{
-            backgroundColor: '#D3592A',
-            border: 'none',
-          }}
           className='my-2'
+          style={{ backgroundColor: '#D3592A', border: 'none' }}
         >
           Continue
         </Button>

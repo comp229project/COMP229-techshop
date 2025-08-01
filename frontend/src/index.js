@@ -31,6 +31,7 @@ import ProductListScreen from './screens/admin/ProductListScreen';
 import ProductEditScreen from './screens/admin/ProductEditScreen';
 import UserListScreen from './screens/admin/UserListScreen';
 import UserEditScreen from './screens/admin/UserEditScreen';
+import { AuthProvider } from './context/AuthContext';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -76,10 +77,13 @@ root.render(
   <React.StrictMode>
     <HelmetProvider>
       <Provider store={store}>
-        <PayPalScriptProvider deferLoading={true}>
-          <RouterProvider router={router} />
-        </PayPalScriptProvider>
+        <AuthProvider>
+          <PayPalScriptProvider deferLoading={true}>
+            <RouterProvider router={router} />
+          </PayPalScriptProvider>
+        </AuthProvider>
       </Provider>
+
     </HelmetProvider>
   </React.StrictMode>,
 );
