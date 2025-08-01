@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link} from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { FaAngleLeft } from 'react-icons/fa';
+import { useParams, Link } from 'react-router-dom';
 import {
   Form,
   Row,
@@ -11,7 +9,9 @@ import {
   Card,
   Button,
 } from 'react-bootstrap';
+import { useAuth } from '../context/AuthContext'; // ✅
 import { toast } from 'react-toastify';
+import { FaAngleLeft } from 'react-icons/fa';
 import Rating from '../components/Rating';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
@@ -19,18 +19,17 @@ import {
   useGetProductDetailsQuery,
   useCreateReviewMutation,
 } from '../slices/productsApiSlice';
-import { addToCart } from '../slices/cartSlice';
+import { useAddToCartMutation, useGetCartQuery } from '../slices/cartApiSlice';
 import Meta from '../components/Meta';
 
 const ProductScreen = () => {
   const { id: productId } = useParams();
-
-  const dispatch = useDispatch();
-  //const navigate = useNavigate();
-
   const [qty, setQty] = useState(1);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+
+const { userInfo } = useAuth(); // ✅ use Context
+
 
   const {
     data: product,
@@ -39,24 +38,28 @@ const ProductScreen = () => {
     error,
   } = useGetProductDetailsQuery(productId);
 
+  const [addToCartAPI] = useAddToCartMutation();
+const { refetch: refetchCart } = useGetCartQuery(undefined, {
+  skip: !userInfo,
+});
+
   const [createReview, { isLoading: loadingProductReview }] =
     useCreateReviewMutation();
 
-  const { userInfo } = useSelector((state) => state.auth);
-
-  const addToCartHandler = () => {
-    dispatch(addToCart({ ...product, qty }));
-    toast.success('Item added to cart');
+  const addToCartHandler = async () => {
+    try {
+      await addToCartAPI({ productId: product._id, qty }).unwrap();
+      toast.success('Item added to cart');
+      refetchCart();
+    } catch (err) {
+      toast.error(err?.data?.message || 'Cart update failed');
+    }
   };
 
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      await createReview({
-        productId,
-        rating,
-        comment,
-      }).unwrap();
+      await createReview({ productId, rating, comment }).unwrap();
       refetch();
       toast.success('Review Submitted');
       setRating(0);

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Form, Button, Row, Col } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
+//import { useDispatch, useSelector } from 'react-redux';
+import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
@@ -17,9 +18,9 @@ const ProfileScreen = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const dispatch = useDispatch();
+  //const dispatch = useDispatch();
 
-  const { userInfo } = useSelector((state) => state.auth);
+const { userInfo } = useAuth();
 
   const [updateProfile, { isLoading: loadingUpdateProfile }] =
     useProfileMutation();
@@ -45,7 +46,7 @@ const ProfileScreen = () => {
           email,
           password,
         }).unwrap();
-        dispatch(setCredentials(res));
+        //dispatch(setCredentials(res));
         toast.success('Profile updated');
       } catch (error) {
         toast.error(error?.data?.message || error.error);

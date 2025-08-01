@@ -1,45 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Form, Button, Row, Col } from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
-import FormContainer from '../components/FormContainer';
-import Loader from '../components/Loader';
 import { useLoginMutation } from '../slices/usersApiSlice';
-import { setCredentials } from '../slices/authSlice';
 import { toast } from 'react-toastify';
+import FormContainer from '../components/FormContainer';
 import Meta from '../components/Meta';
+import Loader from '../components/Loader';
+import { useAuth } from '../context/AuthContext';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const location = useLocation();
 
-  const [login, { isLoading }] = useLoginMutation();
-
-  const { userInfo } = useSelector((state) => state.auth);
-
-  const { search } = useLocation();
-  const sp = new URLSearchParams(search);
-  const redirect = sp.get('redirect') || '/';
+  const [loginApi, { isLoading }] = useLoginMutation();
+  const { login } = useAuth(); // from AuthContext
+  const redirect = new URLSearchParams(location.search).get('redirect') || '/';
 
   useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     if (userInfo) {
       navigate(redirect);
     }
-  }, [userInfo, redirect, navigate]);
+  }, [navigate, redirect]);
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await login({ email, password }).unwrap();
-      dispatch(setCredentials({ ...res }));
-      navigate(redirect);
-    } catch (error) {
-      toast.error(error?.data?.message || error.error);
-    }
-  };
+const submitHandler = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await loginApi({ email, password }).unwrap(); // ✅ RTK mutation
+    login(res); // ✅ update AuthContext
+    window.location.reload()
+    toast.success('Login successful');
+    navigate(redirect);
+  } catch (err) {
+    toast.error(err?.data?.message || err.message);
+  }
+};
+
   return (
     <FormContainer>
       <Meta title={'TechShop'} />

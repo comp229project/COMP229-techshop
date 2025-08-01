@@ -1,19 +1,8 @@
-import asyncHandler from '../middleware/asyncHandler.js';
+import Cart from '../models/cart.model.js';
 import Order from '../models/order.model.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
-// @desc    Create new order
-// @route   POST /api/orders
-// @access  Private
 const addOrderItems = asyncHandler(async (req, res) => {
-  console.log('📦 Incoming order request...');
-  console.log('🧾 Order body:', req.body);
-  console.log('🙍‍♂️ Authenticated user:', req.user);
-
-  if (!req.user) {
-    res.status(401);
-    throw new Error('Not authorized, user not found');
-  }
-
   const {
     orderItems,
     shippingAddress,
@@ -24,31 +13,32 @@ const addOrderItems = asyncHandler(async (req, res) => {
     totalPrice,
   } = req.body;
 
-
-  if (orderItems && orderItems.length === 0) {
+  if (!orderItems || orderItems.length === 0) {
     res.status(400);
     throw new Error('No order items');
-  } else {
-    const order = new Order({
-      orderItems: orderItems.map((x) => ({
-        ...x,
-        product: x._id,
-        _id: undefined,
-      })),
-      user: req.user._id,
-      shippingAddress,
-      paymentMethod,
-      itemsPrice,
-      shippingPrice,
-      taxPrice,
-      totalPrice,
-    });
-
-    const createdOrder = await order.save();
-
-    res.status(201).json(createdOrder);
   }
+
+  const order = new Order({
+    orderItems: orderItems.map((x) => ({
+      ...x,
+      product: x.product || x._id, // just in case
+      _id: undefined, // remove any _id sent from frontend
+    })),
+    user: req.user._id,
+    shippingAddress,
+    paymentMethod: paymentMethod || 'PayPal', // default fallback
+    itemsPrice: Number(itemsPrice) || 0,
+    shippingPrice: Number(shippingPrice) || 0,
+    taxPrice: Number(taxPrice) || 0,
+    totalPrice: Number(totalPrice) || 0,
+  });
+
+  const createdOrder = await order.save();
+  // ✅ After saving the order, delete the user's cart
+  await Cart.deleteOne({ user: req.user._id });
+  res.status(201).json(createdOrder);
 });
+
 
 // @desc    Get logged in user orders
 // @route   GET /api/orders/myorders
@@ -127,6 +117,18 @@ const getOrders = asyncHandler(async (req, res) => {
   res.status(200).json(orders);
 });
 
+const placeOrderHandler = async () => {
+  try {
+    const res = await createOrder().unwrap(); // ⬅️ no need to send body
+    console.log('✅ Order Response:', res);
+    navigate(`/order/${res._id}`);
+  } catch (err) {
+    console.error('❌ Order creation failed:', err);
+    toast.error(err?.data?.message || err.message || 'Order failed');
+  }
+};
+
+
 export {
   addOrderItems,
   getMyOrders,
@@ -134,4 +136,5 @@ export {
   updateOrderToPaid,
   updateOrderToDelivered,
   getOrders,
+  placeOrderHandler,
 };
