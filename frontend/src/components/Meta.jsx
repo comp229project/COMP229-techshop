@@ -12,7 +12,7 @@ const Meta = ({ title, description, keywords }) => {
 };
 
 Meta.defaultProps = {
-  title: 'Welcome to TechShop',
+  title: 'Welcome to Z.US',
   description: 'Shop that specializes in tech products.',
   keywords: 'electronics, buy electronics, cheap electronics',
 };

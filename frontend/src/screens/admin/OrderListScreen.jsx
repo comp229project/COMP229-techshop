@@ -12,7 +12,7 @@ const OrderListScreen = () => {
 
   return (
     <>
-      <Meta title={'TechShop Orders'} />
+      <Meta title={'Z.US Orders'} />
       <h1>Orders</h1>
       {isLoading ? (
         <Loader />

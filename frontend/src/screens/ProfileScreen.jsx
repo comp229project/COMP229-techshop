@@ -55,7 +55,7 @@ const ProfileScreen = () => {
 
   return (
     <Row>
-      <Meta title={'TechShop'} />
+      <Meta title={'Z.US'} />
       <Col md={3}>
         <h2>User Profile</h2>
         <Form onSubmit={submitHandler}>

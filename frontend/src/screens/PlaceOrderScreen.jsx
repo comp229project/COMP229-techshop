@@ -61,7 +61,7 @@ const PlaceOrderScreen = () => {
 
   return (
     <>
-      <Meta title={'TechShop'} />
+      <Meta title={'Z.US'} />
       <CheckoutSteps step1 step2 step3 step4 />
       <Row>
         <Col md={8}>

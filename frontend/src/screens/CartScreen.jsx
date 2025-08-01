@@ -36,7 +36,7 @@ const CartScreen = () => {
 
   return (
     <Row>
-      <Meta title={'TechShop'} />
+      <Meta title={'Z.US'} />
       <Col md={8}>
         <h1 style={{ marginBottom: '20px' }}>Shopping Cart</h1>
         {cartItems.length === 0 ? (

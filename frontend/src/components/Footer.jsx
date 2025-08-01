@@ -15,7 +15,7 @@ const Footer = () => {
       <Container>
         <Row>
           <Col className='text-center p-2'>
-            <p>TechShop &copy; {currentYear}</p>
+            <p>Z.US &copy; {currentYear}</p>
             <div>
               {socialLinks.map((link, index) => (
                 <a

@@ -113,7 +113,7 @@ const OrderScreen = () => {
     <Message variant='danger' />
   ) : (
     <>
-      <Meta title={'TechShop'} />
+      <Meta title={'Z.US'} />
       <h1>Order {order._id}</h1>
       <Row>
         <Col md={8}>

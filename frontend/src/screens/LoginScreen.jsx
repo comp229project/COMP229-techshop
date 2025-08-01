@@ -42,7 +42,7 @@ const LoginScreen = () => {
   };
   return (
     <FormContainer>
-      <Meta title={'TechShop'} />
+      <Meta title={'Z.US'} />
       <h1>Sign In</h1>
       <Form onSubmit={submitHandler}>
         <Form.Group controlId='email' className='my-3'>
