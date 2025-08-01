@@ -43,7 +43,7 @@ const PaymentScreen = () => {
 
   return (
     <FormContainer>
-      <Meta title='TechShop' />
+      <Meta title={'Z.US'} />
       <CheckoutSteps step1 step2 step3 />
       <h1>Payment Method</h1>
       <Form onSubmit={submitHandler}>

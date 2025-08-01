@@ -29,7 +29,7 @@ const UserListScreen = () => {
 
   return (
     <>
-      <Meta title={'TechShop Users'} />
+      <Meta title={'Z.US Users'} />
       <h1>Users</h1>
       {loadingDelete && <Loader />}
       {isLoading ? (

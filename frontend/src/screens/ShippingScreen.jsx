@@ -59,7 +59,7 @@ const ShippingScreen = () => {
 
   return (
     <FormContainer>
-      <Meta title='TechShop' />
+      <Meta title={'Z.US'} />
       <CheckoutSteps step1 step2 />
       <h1>Shipping</h1>
       <Form onSubmit={submitHandler}>

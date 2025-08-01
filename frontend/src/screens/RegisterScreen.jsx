@@ -50,7 +50,7 @@ const RegisterScreen = () => {
 
   return (
     <FormContainer>
-      <Meta title={'TechShop'} />
+      <Meta title={'Z.US'} />
       <h1>Sign Up</h1>
       <Form onSubmit={submitHandler}>
         <Form.Group controlId='name' className='my-3'>

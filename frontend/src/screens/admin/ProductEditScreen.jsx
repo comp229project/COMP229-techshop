@@ -88,7 +88,7 @@ const ProductEditScreen = () => {
 
   return (
     <>
-      <Meta title={'TechShop Add Product'} />
+      <Meta title={'Z.US Add Product'} />
       <Link to='/admin/productlist' className='btn btn-light my-3'>
         <FaArrowAltCircleLeft
           style={{

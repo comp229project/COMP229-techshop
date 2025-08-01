@@ -37,7 +37,7 @@ const HomeScreen = () => {
         </Message>
       ) : (
         <>
-          <Meta title={'Welcome to Hertz'} />
+          <Meta title={'Welcome to Z.US'} />
           <h1 className='display-8'>Latest Products</h1>
           <Row>
             {[...data.products]

@@ -54,7 +54,7 @@ const ProductListScreen = () => {
 
   return (
     <>
-      <Meta title={'TechShop Products'} />
+      <Meta title={'Z.US Products'} />
       <Row className='align-items-center'>
         <Col>
           <h1>Products</h1>

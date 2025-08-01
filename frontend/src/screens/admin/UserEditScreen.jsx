@@ -52,7 +52,7 @@ const UserEditScreen = () => {
 
   return (
     <>
-      <Meta title='TechShop Edit User' />
+      <Meta title='Z.US Edit User' />
       <Link to='/admin/userlist' className='btn btn-light my-3'>
         <FaArrowAltCircleLeft /> Go Back
       </Link>
