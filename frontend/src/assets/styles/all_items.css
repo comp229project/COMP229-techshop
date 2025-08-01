@@ -136,3 +136,17 @@ h1{}
   background: #0b97f6 !important;
   color: #fafafa !important;
 }
+
+.table-striped > tbody > tr:nth-of-type(odd) > td,
+.table-striped > tbody > tr:nth-of-type(odd) > th {
+  color: white !important;
+}
+
+.table-striped > tbody > tr > td,
+.table-striped > tbody > tr > th {
+  color: white !important;
+}
+
+.table thead th {
+  color: #ffffff !important;
+}
