@@ -63,12 +63,8 @@ const PaymentScreen = () => {
           </Col>
         </Form.Group>
         <Button
-          className='my-3'
+          className='my-3 btn-cyan'
           type='submit'
-          style={{
-            backgroundColor: '#D3592A',
-            border: 'none',
-          }}
         >
           Continue
         </Button>

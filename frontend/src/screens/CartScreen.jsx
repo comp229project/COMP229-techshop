@@ -154,13 +154,9 @@ const CartScreen = () => {
             <ListGroup.Item>
               <Button
                 type='button'
-                className='btn-block'
+                className='btn-block btn-cyan'
                 disabled={cartItems.length === 0}
                 onClick={checkoutHandler}
-                style={{
-                  backgroundColor: '#D3592A',
-                  border: 'none',
-                }}
               >
                 Continue to checkout
               </Button>

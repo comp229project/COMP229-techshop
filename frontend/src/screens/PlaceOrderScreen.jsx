@@ -128,7 +128,7 @@ const PlaceOrderScreen = () => {
                   <Col>
                     ${shippingPrice.toFixed(2)}
                     {itemsPrice < 500 && (
-                      <small style={{ display: 'block', color: 'red' }}>
+                      <small style={{ display: 'block', color: /*red*/'blue' }}>
                         Get free shipping for orders over $500!
                       </small>
                     )}
@@ -163,10 +163,9 @@ const PlaceOrderScreen = () => {
               <ListGroup.Item>
                 <Button
                   type='button'
-                  className='btn-block'
+                  className='btn-block btn-cyan'
                   disabled={cart?.cartItems?.length === 0}
                   onClick={placeOrderHandler}
-                  style={{ backgroundColor: '#D3592A', border: 'none' }}
                 >
                   Place Order
                 </Button>

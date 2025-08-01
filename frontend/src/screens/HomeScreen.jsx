@@ -42,16 +42,16 @@ const HomeScreen = () => {
           <Row>
             {[...data.products]
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-              .map((product) => (
+              .map((product, index, arr) => (
                 <Col
                   key={product._id}
                   sm={12}
-                  md={6}
-                  lg={4}
-                  xl={3}
-                  className='p-2 bg-white rounded'
+                  md={arr.length === 1 ? 12 : 6}
+                  lg={arr.length === 1 ? 12 : 4}
+                  xl={arr.length === 1 ? 12 : 3}
+                  className='p-2'
                 >
-                  <Product product={product}></Product>
+                  <Product product={product} />
                 </Col>
               ))}
           </Row>

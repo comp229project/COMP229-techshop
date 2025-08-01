@@ -80,7 +80,7 @@ const Header = () => {
                   <LinkContainer
                     to='/profile'
                     activeStyle={{
-                      backgroundColor: '#D3592A',
+                      backgroundColor: '#098de6',
                     }}
                   >
                     <NavDropdown.Item>Profile</NavDropdown.Item>
@@ -105,7 +105,7 @@ const Header = () => {
                   <LinkContainer
                     to='/admin/orderlist'
                     activeStyle={{
-                      backgroundColor: '#D3592A',
+                      backgroundColor: '#098de6',
                     }}
                   /*Not sure what the purpose for activeStyle is*/
                   >
@@ -114,7 +114,7 @@ const Header = () => {
                   <LinkContainer
                     to='/admin/productlist'
                     activeStyle={{
-                      backgroundColor: '#D3592A',
+                      backgroundColor: '#098de6',
                     }}
                   >
                     <NavDropdown.Item>Products</NavDropdown.Item>
@@ -122,7 +122,7 @@ const Header = () => {
                   <LinkContainer
                     to='/admin/userlist'
                     activeStyle={{
-                      backgroundColor: '#D3592A',
+                      backgroundColor: '#098de6',
                     }}
                   >
                     <NavDropdown.Item>Users</NavDropdown.Item>
