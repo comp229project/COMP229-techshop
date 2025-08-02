@@ -20,7 +20,7 @@ const HomeScreen = () => {
     <div>
       {!keyword ? (
         <>
-          <h1 className='display-8'>Top Rated Products</h1>
+          <h1 className='display-8'>Top Rated Products - CI/CD Deployed!</h1>
           <ProductCarousel />
         </>
       ) : (
