@@ -20,7 +20,7 @@ const HomeScreen = () => {
     <div>
       {!keyword ? (
         <>
-          <h1 className='display-8'>Top Rated Products - CI/CD Deployed!</h1>
+          <h1 className='display-8'>Top Rated Products</h1>
           <ProductCarousel />
         </>
       ) : (
@@ -40,20 +40,21 @@ const HomeScreen = () => {
           <Meta title={'Welcome to Z.US'} />
           <h1 className='display-8'>Latest Products</h1>
           <Row>
-            {[...data.products]
+            {(data?.products || [])
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-              .map((product, index, arr) => (
+              .map((product) => (
                 <Col
                   key={product._id}
                   sm={12}
-                  md={arr.length === 1 ? 12 : 6}
-                  lg={arr.length === 1 ? 12 : 4}
-                  xl={arr.length === 1 ? 12 : 3}
+                  md={6}
+                  lg={4}
+                  xl={3}
                   className='p-2'
                 >
                   <Product product={product} />
                 </Col>
               ))}
+
           </Row>
           <div className='d-flex mt-4 justify-content-center'>
             <Paginate

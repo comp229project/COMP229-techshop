@@ -11,6 +11,7 @@ import productRoutes from './routes/product.routes.js'
 import uploadRoutes from './routes/upload.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import cartRoutes from './routes/cart.routes.js';
+import cors from 'cors';
 
 process.removeAllListeners('warning'); // suppress all warnings (optional)
 // Suppress all DeprecationWarnings (optional)
@@ -24,7 +25,7 @@ const port = process.env.PORT || 6000;
 connectDB();
 
 const app = express();
-
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
