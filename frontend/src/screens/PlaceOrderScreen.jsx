@@ -14,17 +14,22 @@ const PlaceOrderScreen = () => {
   const navigate = useNavigate();
   const { userInfo } = useAuth();
 
-  const { data: cart, isLoading: loadingCart, error: errorCart, refetch: refetchCart } = useGetCartQuery(undefined, {
-    skip: !userInfo,
-  });
+  const {
+    data: cart,
+    isLoading: loadingCart,
+    error: errorCart,
+    refetch: refetchCart,
+  } = useGetCartQuery(undefined, { skip: !userInfo });
 
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
 
   // Calculate prices
-  const itemsPrice = cart?.cartItems?.reduce((acc, item) => acc + item.qty * item.price, 0) || 0;
+  const itemsPrice = Number(
+    cart?.cartItems?.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2)
+  ) || 0;
   const shippingPrice = itemsPrice > 500 ? 0 : 25;
   const taxPrice = Number((0.15 * itemsPrice).toFixed(2));
-  const totalPrice = (itemsPrice + shippingPrice + taxPrice).toFixed(2);
+  const totalPrice = Number((itemsPrice + shippingPrice + taxPrice).toFixed(2));
 
   useEffect(() => {
     if (!cart?.shippingAddress?.address) {
@@ -40,18 +45,21 @@ const PlaceOrderScreen = () => {
         orderItems: cart.cartItems,
         shippingAddress: cart.shippingAddress,
         paymentMethod: cart.paymentMethod,
-        itemsPrice: Number(itemsPrice.toFixed(2)),
+        itemsPrice,
         shippingPrice,
         taxPrice,
-        totalPrice: Number(totalPrice),
+        totalPrice,
       }).unwrap();
-      await refetchCart();
-      navigate(`/order/${res._id}`);
-      window.location.reload(); // refreshes entire app state (quick fix)
+
+      await refetchCart(); // Clear cart
+      navigate(`/order/${res._id}`); // Go to order details
     } catch (err) {
       toast.error(err?.data?.message || err.message || 'Order failed');
     }
   };
+
+  if (loadingCart) return <Loader />;
+  if (errorCart) return <Message variant="danger">{errorCart.toString()}</Message>;
 
   return (
     <>
@@ -59,14 +67,13 @@ const PlaceOrderScreen = () => {
       <CheckoutSteps step1 step2 step3 step4 />
       <Row>
         <Col md={8}>
-          <ListGroup variant='flush'>
+          <ListGroup variant="flush">
             <ListGroup.Item>
               <h2>Shipping</h2>
               <p>
                 <strong>Address:</strong>{' '}
                 {cart?.shippingAddress?.address}, {cart?.shippingAddress?.city}{' '}
-                {cart?.shippingAddress?.postalCode},{' '}
-                {cart?.shippingAddress?.country}
+                {cart?.shippingAddress?.postalCode}, {cart?.shippingAddress?.country}
               </p>
             </ListGroup.Item>
 
@@ -81,7 +88,7 @@ const PlaceOrderScreen = () => {
               {cart?.cartItems?.length === 0 ? (
                 <Message>Your cart is empty</Message>
               ) : (
-                <ListGroup variant='flush'>
+                <ListGroup variant="flush">
                   {cart.cartItems.map((item, index) => (
                     <ListGroup.Item key={index}>
                       <Row>
@@ -110,7 +117,7 @@ const PlaceOrderScreen = () => {
 
         <Col md={4}>
           <Card>
-            <ListGroup variant='flush'>
+            <ListGroup variant="flush">
               <ListGroup.Item>
                 <h2>Order Summary</h2>
               </ListGroup.Item>
@@ -128,7 +135,7 @@ const PlaceOrderScreen = () => {
                   <Col>
                     ${shippingPrice.toFixed(2)}
                     {itemsPrice < 500 && (
-                      <small style={{ display: 'block', color: /*red*/'blue' }}>
+                      <small style={{ display: 'block', color: 'blue' }}>
                         Get free shipping for orders over $500!
                       </small>
                     )}
@@ -147,14 +154,14 @@ const PlaceOrderScreen = () => {
                 <Row>
                   <Col>Total</Col>
                   <Col>
-                    <strong>${totalPrice}</strong>
+                    <strong>${totalPrice.toFixed(2)}</strong>
                   </Col>
                 </Row>
               </ListGroup.Item>
 
               {error && (
                 <ListGroup.Item>
-                  <Message variant='danger'>
+                  <Message variant="danger">
                     {error?.data?.message || error.error}
                   </Message>
                 </ListGroup.Item>
@@ -162,14 +169,14 @@ const PlaceOrderScreen = () => {
 
               <ListGroup.Item>
                 <Button
-                  type='button'
-                  className='btn-block btn-cyan'
+                  type="button"
+                  className="btn-block btn-cyan"
                   disabled={cart?.cartItems?.length === 0}
                   onClick={placeOrderHandler}
                 >
                   Place Order
                 </Button>
-                {(isLoading || loadingCart) && <Loader />}
+                {isLoading && <Loader />}
               </ListGroup.Item>
             </ListGroup>
           </Card>
