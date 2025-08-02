@@ -40,7 +40,7 @@ const HomeScreen = () => {
           <Meta title={'Welcome to Z.US'} />
           <h1 className='display-8'>Latest Products</h1>
           <Row>
-            {(data?.products || [])
+            {(data?.products ? JSON.parse(JSON.stringify(data.products)) : [])
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
               .map((product) => (
                 <Col
@@ -54,6 +54,7 @@ const HomeScreen = () => {
                   <Product product={product} />
                 </Col>
               ))}
+
 
           </Row>
           <div className='d-flex mt-4 justify-content-center'>
